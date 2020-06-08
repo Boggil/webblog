@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 import kr.hs.dgsw.webblog.Domain.User;
 import kr.hs.dgsw.webblog.Repository.UserRepository;
 
-@Service
+@Service  // 해당 클래스가 Service라는 것을 알려줌
 public class UserServiceImpl implements UserService {
-  @Autowired
+  @Autowired // 각 상황의 타입에 맞는 loC컨테이너 안에 존재하는 Bean을 자동으로 주입해주게 됨
   private UserRepository userRepository;
 
   @Override

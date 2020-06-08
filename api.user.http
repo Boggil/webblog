@@ -18,11 +18,13 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:8080/user/update/3
+PUT http://localhost:8080/user/update/1
 Content-Type: application/json
 
 {
-  "email": "imrimee@naver.com"
+  "email": "imrimee@naver.com",
+  "name": "우효",
+  "phone": "010-1231-1421"
 }
 
 ###

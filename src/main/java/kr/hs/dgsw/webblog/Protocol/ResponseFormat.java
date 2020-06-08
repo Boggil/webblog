@@ -2,7 +2,7 @@ package kr.hs.dgsw.webblog.Protocol;
 
 import lombok.Data;
 
-@Data
+@Data // @Getter @Setter @EqualsAndHashCode @AllArgsConstructor 을 포함한 Lombok에서 제공하는 필드와 관련된 모든 코드를 생성함
 public class ResponseFormat {
   private int code;
   private String desc;

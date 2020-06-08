@@ -6,61 +6,69 @@
   <title>web blog</title>
   <script src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
   <style>
-    .sign {
-      display: flex;     
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
     }
-    .signIn {
-      width: 50%;
-
+    .sign {
+      display: flex;
+      height: 30%;
     }
     .signUp {
-      width: 50%;
-      
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
     }
-    #userList, #commentList {
+    #userList, #postList, #soloPost {
       margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
   <div class="sign">
-    <div class="signIn">
-      <h1>로그인</h1>
-      <div>
-        <label>email</label>
-        <input type="text" id="login_email">
-      </div>
-      <div>
-        <label>password</label>
-        <input type="password" id="login_password" onkeyup="pressEnter()">
-      </div>
-      <button onClick="login()">로그인</button>
-    </div>
     <div class="signUp">
       <h1>회원가입</h1>
       <div>
-        <label>username</label>
-        <input type="text" id="sign_username">
+        <label>account</label>
+        <input type="text" id="sign_account">
+      </div>
+      <div>
+        <label>password</label>
+        <input type="password" id="sign_password">
+      </div>
+      <div>
+        <label>name</label>
+        <input type="text" id="sign_name">
       </div>
       <div>
         <label>email</label>
         <input type="text" id="sign_email">
       </div>
       <div>
-        <label>password</label>
-        <input type="text" id="sign_password">
+        <label>phone</label>
+        <input type="text" id="sign_phone">
       </div>
+      <!-- <form method="Post" action="/upload" enctype="form-data">
+        <input type="file" id="sign_profile" name="image" accept="image/jpeg, image/png, image/gif" />
+      </form> -->
       <div>
-        <button onClick="signUser()">확인</button>
+        <button onClick="signUser()">가입</button>
         <button onClick="initSignForm()">취소</button>
       </div>
     </div>
   </div>
-
   <div class="service">
     <div>
       <h1>게시글</h1>
       <div>
+        <div>
+          <label>userId</label>
+          <input type="text" style="width: 400px;" id="add_post_userId">
+        </div>
         <div>
           <label>title</label>
           <input type="text" style="width: 400px;" id="add_post_title">
@@ -69,35 +77,410 @@
           <label>content</label>
           <input type="text" style="width: 400px;" id="add_post_content">
         </div>
+        <!-- <form method="Post" action="/upload" enctype="multipart/form-data">
+          <input type="file" id="add_post_profile" name="image" accept="image/jpeg, image/png, image/gif" />
+        </form> -->
         <button onClick="addPost()">확인</button>
       </div>
     </div>
   
     <div>
       <h1>회원 목록</h1>
-      <div style="border-top: 2px solid black; border-bottom: 2px solid black; padding: 10px 0px; min-width: 300px; display: flex;">
+      <div style="border-top: 2px solid black; border-bottom: 2px solid black; padding: 10px 5px; min-width: 300px; display: flex;">
+        <div style="width: 200px">계정</div>
         <div style="width: 200px">이름</div>
         <div style="width: 250px">이메일</div>
-        <div style="width: 200px">비밀번호</div>
-        <div style="width: 500px">저장된 경로</div>
-        <div style="width: 500px">기존 파일명</div>
+        <div style="width: 200px">휴대폰</div>
       </div>
       <div id="userList"></div>
     </div>
   
     <div>
       <h1>게시글 목록</h1>
-      <div style="border-top: 2px solid black; border-bottom: 2px solid black; padding: 10px 0px; min-width: 300px; display: flex;">
-        <div style="width: 200px">사용자 이름</div>
+      <div style="border-top: 2px solid black; border-bottom: 2px solid black; padding: 10px 5px; min-width: 300px; display: flex;">
+        <div style="width: 200px">ID</div>
         <div style="width: 250px">제목</div>
         <div style="width: 250px">내용</div>
       </div>
-      <div id="commentList"></div>
+      <div id="postList"></div>
     </div>
-  
-    <form method="Post" action="/upload" enctype="multipart/form-data">
-      <input type="file" name="image" accept="image/jpeg, image/png, image/gif" />
-    </form>
+
+    <div>
+      <div style="display: flex; align-items: center;">
+        <h1>사용자별 게시글</h1>
+        <input type="text" id="solo_id" placeholder="사용자 아이디" style="height:20px;">
+        <button onClick="findSoloPost   ()">검색</button>
+      </div>
+      <div style="border-top: 2px solid black; border-bottom: 2px solid black; padding: 10px 5px; min-width: 300px; display: flex;">
+        <div style="width: 200px">ID</div>
+        <div style="width: 250px">제목</div>
+        <div style="width: 250px">내용</div>
+      </div>
+      <div id="soloPost"></div>
+    </div>
   </div>
 </body>
+<script>
+function initSignForm() {
+    $("#sign_account").val('');
+    $("#sign_password").val('');
+    $("#sign_name").val('');
+    $("#sign_email").val('');
+    $("#sign_phone").val('');
+  }
+
+  async function login() {
+    try {
+      let user = {
+        email: $("login_email").val(),
+        password: $("login_password").val()
+      };
+      let response = await $.ajax({
+        type: "POST",
+        url: "/user/login",
+        contentType: 'application/json',
+        data: JSON.stringify(user),
+      }).done(response => {
+        console.log(response);
+        if (response === "") {
+          alert('ID 또는 PW가 일치하지 않습니다.');
+        } else {
+          alert('로그인 성공');
+          $("login_email").val();
+          $("login_password").val();
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  function pressEnter(getFuntion) {
+    if (event.keyCode == 13) {  // password input에서 enter키를 누른다면 로그인
+      getFuntion();
+    }
+  }
+
+  async function signUser() {
+    try {
+      let user = {
+        account: $("#sign_account").val(),
+        password: $("#sign_password").val(),
+        name: $("#sign_name").val(),
+        email: $("#sign_email").val(),
+        phone: $("#sign_phone").val(),
+        // profile_path: $("input#sign_profile")[0].files[0]
+      };
+      // console.log("profile", $("#sign_profile").file.name);
+      console.log(user);
+      let response = await $.ajax({
+        type: 'POST',
+        url: "/user/create",
+        contentType: 'application/json',
+        data: JSON.stringify(user),
+        success: (response) => {
+          if (response === "") {
+            alert('이미 존재하는 회원입니다.');
+          } else {
+            alert("가입이 완료되었습니다.");
+            location.reload();
+            console.log(response);
+          }
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function getUserList() {
+    try {
+      let response = await $.get('/user/read');
+
+      console.log(response);
+
+      response.data.forEach(user => {
+        $('#userList').append(`
+          <div style="border-bottom: 1px solid lightgray; padding: 10px 5px; min-width: 300px; display: flex;">
+            <div style="width: 200px">${user.account}</div>
+            <div id="${user.id}_user_name" style="width: 200px">${user.name}</div>
+            <input id="${user.id}_user_name_input" style="width: 200px; display:none;">
+            <div id="${user.id}_user_email" style="width: 250px">${user.email}</div>
+            <input id="${user.id}_user_email_input" style="width: 250px; display:none;">
+            <div id="${user.id}_user_phone" style="width: 200px">${user.phone}</div>
+            <input id="${user.id}_user_phone_input" style="width: 200px; display:none;">
+            <button id="${user.id}_user_modify" onClick="clickModifyUserButton(${user.id})">수정</button>
+            <button id="${user.id}_user_ok" style="display:none;" onClick="modifyUser(${user.id})">확인</button>
+            <button id="${user.id}_user_cancel" style="display:none;" onClick="cancelUserModify(${user.id})">취소</button>
+            <button id="${user.id}_user_remove" onClick="removeUser(${user.id})">삭제</button>
+          </div>
+        `);
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  // function addUserLine(user) {
+  //     $('#userList').append(`
+  //       <div style="border-bottom: 1px solid lightgray; padding: 10px 5px; min-width: 300px; display: flex;">
+  //         <div style="width: 200px">${user.username}</div>
+  //         <div style="width: 250px">${user.email}</div>
+  //         <div style="width: 200px">${user.password}</div>
+  //         <div style="width: 500px">${user.storedPath}</div>
+  //         <div style="width: 500px">${user.originalName}</div>
+  //         <button>수정</button>
+  //         <button onClick="removeUser(${user.id})">삭제</button>
+  //         <button>이미지</button>
+  //       </div>
+  //     `);
+  // }
+
+  async function removeUser(userId) {
+    try {
+      let response = await $.ajax({
+        type: "DELETE",
+        url: `/user/delete/${userId}`,
+        contentType: 'application/json',
+        success: () => {
+          alert("성공적으로 삭제하였습니다.");
+          location.reload();
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  
+  async function addPost() {
+    try {
+      let post = {
+        userId: $("#add_post_userId").val(),
+        title: $("#add_post_title").val(),
+        content: $("#add_post_content").val(),
+        // pictures: $("#add_post_profile").val(),
+        pictures: null
+      };
+      console.log(post);
+      // console.log($("#add_post_profile").val());
+      let response = await $.ajax({
+        type: 'POST',
+        url: "/post/create",
+        contentType: 'application/json',
+        data: JSON.stringify(post),
+        success: () => {
+          alert("게시물을 추가하였습니다.");
+        }
+      });
+      $("#add_post_userId").val('');
+      $("#add_post_title").val('');
+      $("#add_post_content").val('');
+      
+      addPostLine(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function getPostList() {
+    try {
+      let response = await $.get('/post/read');
+      console.log(response.data);
+      response.data.forEach(post => {
+        $('#postList').append(`
+          <div style="border-bottom: 1px solid lightgray; padding: 10px 5px; min-width: 300px; display: flex;">
+            <div style="width: 200px">${post.userId}</div>
+            <div id="${post.id}_post_title" style="width: 250px">${post.title}</div>
+            <input id="${post.id}_post_title_input" style="width: 250px; display:none;">
+            <div id="${post.id}_post_content" style="width: 1000px">${post.content}</div>
+            <input id="${post.id}_post_content_input" style="width: 1000px; display:none;">
+            <button id="${post.id}_post_modify" onClick="clickModifyPostButton(${post.id})">수정</button>
+            <button id="${post.id}_post_ok" style="display:none;" onClick="modifyPost(${post.id}, ${post.userId})">확인</button>
+            <button id="${post.id}_post_cancel" style="display:none;" onClick="cancelPostModify(${post.id})">취소</button>
+            <button id="${post.id}_post_remove" onClick="removePost(${post.id})">삭제</button>
+          </div>
+        `);
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function findSoloPost() {
+    try {
+      let userId = $("#solo_id").val();
+      console.log(userId);
+      let response = await $.get(`/post/read/${userId}`);
+
+      let post = response.data;
+      console.log(`/post/read/${userId}`);
+      $('#soloPost').append(`
+          <div style="border-bottom: 1px solid lightgray; padding: 10px 5px; min-width: 300px; display: flex;">
+            <div style="width: 200px">${post.userId}</div>
+            <div id="${post.id}_post_title" style="width: 250px">${post.title}</div>
+            <div id="${post.id}_post_content" style="width: 1000px">${post.content}</div>
+          </div>
+        `);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  function addPostLine(post) {
+      $('#postList').append(`
+        <div style="border-bottom: 1px solid lightgray; padding: 10px 5px; min-width: 300px; display: flex;">
+            <div style="width: 200px">${post.userId}</div>
+            <div id="${post.id}_post_title" style="width: 250px">${post.title}</div>
+            <input id="${post.id}_post_title_input" style="width: 250px; display:none;">
+            <div id="${post.id}_post_content" style="width: 1000px">${post.content}</div>
+            <input id="${post.id}_post_content_input" style="width: 1000px; display:none;">
+            <button id="${post.id}_post_modify" onClick="clickModifyPostButton(${post.id})">수정</button>
+            <button id="${post.id}_post_ok" style="display:none;" onClick="modifyPost(${post.id}, ${post.userId})">확인</button>
+            <button id="${post.id}_post_cancel" style="display:none;" onClick="cancelPostModify(${post.id})">취소</button>
+            <button id="${post.id}_post_remove" onClick="removePost(${post.id})">삭제</button>
+        </div>
+      `);
+  }
+
+  async function removePost(postId) {
+    try {
+      let response = await $.ajax({
+        type: "DELETE",
+        url: `/post/delete/${postId}`,
+        contentType: 'application/json',
+        success: () => {
+          alert("성공적으로 삭제하였습니다.");
+          location.reload();
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  function clickModifyPostButton(post_id) {
+    document.getElementById(`${post_id}_post_content_input`).value = $(`#${post_id}_post_content`).text();
+    document.getElementById(`${post_id}_post_title_input`).value = $(`#${post_id}_post_title`).text();
+    
+    document.getElementById(`${post_id}_post_modify`).style.display = "none";
+    document.getElementById(`${post_id}_post_title`).style.display = "none";
+    document.getElementById(`${post_id}_post_content`).style.display = "none";
+    document.getElementById(`${post_id}_post_remove`).style.display = "none";
+    document.getElementById(`${post_id}_post_title_input`).style.display = "block";
+    document.getElementById(`${post_id}_post_content_input`).style.display = "block";
+    document.getElementById(`${post_id}_post_ok`).style.display = "block";
+    document.getElementById(`${post_id}_post_cancel`).style.display = "block";
+  }
+
+  async function modifyPost(post_id, post_userId) {
+    try {
+      let post = {
+        userId: post_userId,
+        title: $(`#${post_id}_post_title_input`).val(),
+        content: $(`#${post_id}_post_content_input`).val(),
+      };
+
+      let response = await $.ajax({
+        type: "PUT",
+        url: `/post/update/${post_id}`,
+        contentType: "application/json",
+        data: JSON.stringify(post),
+        success: (response) => {
+          let original_title = $(`#${post_id}_post_title`).text();
+          let original_content = $(`#${post_id}_post_content`).text();  // 수정하기 전과 값이 같다면 취소 이벤트 발생
+          
+          if (original_content === post.content && original_title === post.title) {
+            cancelPostModify(post_id);
+          } else if (response !== "" && response !== null) {
+            alert('수정을 성공하였습니다!');
+            location.reload();
+          } else {
+            alert('수정을 실패하였습니다!');
+          }
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+    
+  }
+
+  function cancelPostModify(post_id) {
+    document.getElementById(`${post_id}_post_title`).style.display = "block";
+    document.getElementById(`${post_id}_post_content`).style.display = "block";
+    document.getElementById(`${post_id}_post_modify`).style.display = "block";
+    document.getElementById(`${post_id}_post_remove`).style.display = "block";
+    document.getElementById(`${post_id}_post_title_input`).style.display = "none";
+    document.getElementById(`${post_id}_post_content_input`).style.display = "none";
+    document.getElementById(`${post_id}_post_ok`).style.display = "none";
+    document.getElementById(`${post_id}_post_cancel`).style.display = "none";
+  }
+
+  function clickModifyUserButton(user_id) {
+    document.getElementById(`${user_id}_user_name_input`).value = $(`#${user_id}_user_name`).text();
+    document.getElementById(`${user_id}_user_email_input`).value = $(`#${user_id}_user_email`).text();
+    document.getElementById(`${user_id}_user_phone_input`).value = $(`#${user_id}_user_phone`).text();
+
+    document.getElementById(`${user_id}_user_modify`).style.display = "none";
+    document.getElementById(`${user_id}_user_remove`).style.display = "none";
+    document.getElementById(`${user_id}_user_name`).style.display = "none";
+    document.getElementById(`${user_id}_user_email`).style.display = "none";
+    document.getElementById(`${user_id}_user_phone`).style.display = "none";
+    document.getElementById(`${user_id}_user_name_input`).style.display = "block";
+    document.getElementById(`${user_id}_user_email_input`).style.display = "block";
+    document.getElementById(`${user_id}_user_phone_input`).style.display = "block";
+    document.getElementById(`${user_id}_user_ok`).style.display = "block";
+    document.getElementById(`${user_id}_user_cancel`).style.display = "block";
+  }
+
+  async function modifyUser(user_id) {
+    try {
+      let user = {
+        name: $(`#${user_id}_user_name_input`).val(),
+        email: $(`#${user_id}_user_email_input`).val(),
+        phone: $(`#${user_id}_user_phone_input`).val()
+      };
+
+      let response = await $.ajax({
+        type: "PUT",
+        url: `/user/update/${user_id}`,
+        contentType: "application/json",
+        data: JSON.stringify(user),
+        success: (response) => {
+          let original_name = $(`#${user_id}_user_name`).text();
+          let original_email = $(`#${user_id}_user_email`).text();  // 수정하기 전과 값이 같다면 취소 이벤트 발생
+          let original_phone = $(`#${user_id}_user_phone`).text();
+          
+          if (original_name === user.name && original_email === user.email && original_phone === user.phone) {
+            cancelUserModify(user_id);
+          } else if (response !== "" && response !== null) {
+            alert('수정을 성공하였습니다!');
+            location.reload();
+          } else {
+            alert('수정을 실패하였습니다!');
+          }
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+    
+  }
+
+  function cancelUserModify(user_id) {
+    document.getElementById(`${user_id}_user_name`).style.display = "block";
+    document.getElementById(`${user_id}_user_email`).style.display = "block";
+    document.getElementById(`${user_id}_user_phone`).style.display = "block";
+    document.getElementById(`${user_id}_user_modify`).style.display = "block";
+    document.getElementById(`${user_id}_user_remove`).style.display = "block";
+    document.getElementById(`${user_id}_user_name_input`).style.display = "none";
+    document.getElementById(`${user_id}_user_email_input`).style.display = "none";
+    document.getElementById(`${user_id}_user_phone_input`).style.display = "none";
+    document.getElementById(`${user_id}_user_ok`).style.display = "none";
+    document.getElementById(`${user_id}_user_cancel`).style.display = "none";
+  }
+
+  getUserList();
+  getPostList();
+</script>
 </html>

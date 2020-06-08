@@ -21,14 +21,14 @@ import org.hibernate.annotations.UpdateTimestamp;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Data
-@NoArgsConstructor
+@Entity // Table로 매핑
+@Data // @Getter @Setter @EqualsAndHashCode @AllArgsConstructor 을 포함한 Lombok에서 제공하는 필드와 관련된 모든 코드를 생성함
+@NoArgsConstructor  // 빈 매개변수의 생성자를 만들어줌
 public class Post {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Id // 기본키 설정
+  @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본키 생성을 DBMS에 위임한다.
   private Long id;
-  @Column(nullable = false)
+  @Column(nullable = false)  // nullable: NULL 허용, unique: 고유값, length: 글자 수
   private Long userId;
   @Column(nullable = false)
   private String title;

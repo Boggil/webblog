@@ -12,14 +12,14 @@ import kr.hs.dgsw.webblog.Domain.Post;
 import kr.hs.dgsw.webblog.Repository.PostRepository;
 // import kr.hs.dgsw.webblog.Repository.UserRepository;
 
-@Service
+@Service // 해당 클래스가 Service라는 것을 알려줌
 public class PostServiceImpl implements PostService {
-  @Autowired
+  @Autowired  // 각 상황의 타입에 맞는 loC컨테이너 안에 존재하는 Bean을 자동으로 주입해주게 됨
   private PostRepository postRepository;
   @Autowired
   // private UserRepository userRepository;
 
-  @PostConstruct
+  @PostConstruct // 객체가 생성된 후 별도의 초기화 작업을 위해 실행하는 메소드를 선언함
   private void init() {
     // User user = userRepository.save(new User("h1", "1234", "하이", "hi@naver.com"))
   }

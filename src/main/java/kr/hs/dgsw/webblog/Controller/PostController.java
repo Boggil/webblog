@@ -14,7 +14,7 @@ import kr.hs.dgsw.webblog.Protocol.ResponseFormat;
 import kr.hs.dgsw.webblog.Protocol.ResponseType;
 import kr.hs.dgsw.webblog.Service.PostService;
 
-@RestController
+@RestController // view가 필요없는 API만 지원하는 서비스에서 사용
 public class PostController {
   @Autowired
   private PostService postService;

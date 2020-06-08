@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 
 
 @Entity // Table로 매핑
-@Data // setter와 getter, toString 등 메서드를 대신 생성해줌
+@Data // @Getter @Setter @EqualsAndHashCode @AllArgsConstructor 을 포함한 Lombok에서 제공하는 필드와 관련된 모든 코드를 생성함
 @NoArgsConstructor  // 빈 매개변수의 생성자를 만들어줌
 public class User { // User class
   @Id // 기본키 설정
